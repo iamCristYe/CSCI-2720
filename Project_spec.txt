@@ -1,0 +1,94 @@
+CSCI2720 Group Project Specification (2-3 students per group)      Due date: 18 Dec 2016
+
+Objective
+Implement a web application (that runs in Node.js) that can be used to manage “multiple choice” questions.
+
+Note: In this spec, a multiple choice question will be referred to as MC.
+
+Required Features
+
+1. A website that includes the following pages:
+	a. A page to show the group member names and IDs
+	b. A page to show list of MCs in “simplified view”
+	c. A page to show a specific MC in details
+
+	Each of these pages should have a unique URL. That is, same URL will yield the same page.
+
+2. Support user authentication 
+	The application should provide a way for user to authenticate his/her identity.
+
+3. Support CRUD (Create, Retrieve, Update, Delete) operations on MC questions
+	All users should be allowed to list and view MC questions, but only users who have successfully logged in can add questions, and update and delete their own questions.
+	
+4. Support pagination, filtering, and reordering of MCs in the listing page
+	The listing page should offer the user a way to filter the MCs by
+		a. The “tags” (or keywords) associated with each MC, and
+		b. The username of the creator of the MCs
+	Defaults is “no filter”, meaning that all MCs would satisfy the filtering condition.
+
+	The listing page should implement pagination and show at most 10 filtered MCs per page.
+
+	The listing page should order the filtered MCs by their “last modified” time in ascending order.
+
+5. Selection of MCs 
+	The application should allow a user to select which MCs to be exported through a feature described in the next item.
+
+6. Export MCs to a file
+	The application should allow a user to download* the selected MCs in a single CSV (Comma-Separated-Value) file. You should use a proven 3rd-party module to produce the CSV file to ensure it is encoded properly.
+
+*: Your application should prompt the user to save the exported file instead of showing the file content in the browser.
+
+Characteristics of the Data
+
+A) Question
+A MC must have at least the following attributes:
+1. Question ID: A unique value that identifies the question.
+2. Title: Plain text
+3. Description: Formatted text
+4. Four Choices: Formatted text
+5. Answer: A value to indicate which of the choices is the correct answer
+6. Tags: Zero or more strings
+7. Creator: A value that identifies the user who created the question
+7. Last-modified time: A value to indicate when the question was last modified.
+
+“Formatted text” here means “a subset of HTML”. In particular, the only elements allowed are
+“b”, “i”, “u”, “pre”, “p”, “br”, and “img”. In addition, an “img” element must have a “src” attribute and optional “width” and “height” attributes. 
+
+B) User
+A user must have at least the following attributes:
+1. User name: A unique string that contains at most 12 alphanumeric characters.
+2. Password: 1-way hashed value of the user’s actual password
+
+Other Requirements
+• Your application DOES NOT need to support “user registration”. You can hardcode the user data in the database.
+• You may use MySql or MongoDB as your database.
+
+Submission and Project Demonstration
+• Please prepare a ZIP or ARJ file containing the following files and submit the ZIP/ARJ file to eLearn:
+o A folder containing all the files that make up your application. 
+o A README document with the following information: 
+• Instructions to setup the database so that your app would work properly if I run “node .” in the root folder containing the app
+• List of features that are not implemented in the app
+• Known bugs
+o Other files (e.g., scripts) that you use to populate the database or test your app, if any.
+
+• Please arrange a day and time before the due date to demonstrate your application to me.
+
+
+
+
+Assessment
+1) Required features (60%)
+- Do all the required features implemented and function correctly?
+	
+2) Is the application fully tested? (20%)
+- Had the application been thoroughly tested (for all possible input)?
+
+3) Design (20%)
+- Is the user interface intuitive?
+- Is the application easy to use?
+- Does it look good? (You are encouraged to use 3rd party CSS such as Bootstrap, Materialize to style your application)
+
+
+	
+

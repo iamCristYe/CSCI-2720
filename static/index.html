@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<link href="js/jquery.ui.core.min.css" rel="stylesheet" type="text/css">
+<link href="js/jquery.ui.theme.min.css" rel="stylesheet" type="text/css">
+<link href="js/jquery.ui.button.min.css" rel="stylesheet" type="text/css">
+<link href="css/css1.css" rel="stylesheet" type="text/css">
+<link href="js/jquery.ui.dialog.min.css" rel="stylesheet" type="text/css">
+<link href="js/jquery.ui.resizable.min.css" rel="stylesheet" type="text/css">
+<script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="js/jquery.ui-1.10.4.button.min.js" type="text/javascript"></script>
+<script src="js/jquery.ui-1.10.4.dialog.min.js"></script>
+<script>
+		$(document).ready(function(){
+			$.get('/ajax/username', { myData: 0 }, function(result) {
+    			console.log("username: "+result);
+				if(result!=""){
+					$(".before").css("visibility","hidden");
+					$(".after").css("visibility","visible");
+          $("#authentication").append("Welcome back, "+result+"!");
+				} 
+        else{
+          $("#authentication").append("You haven't signed in.");
+        }
+			});
+	  var dialog, form;
+      function addQuestion() {
+      var valid = true;
+      if ( valid ) {
+	  	$.post('/ajax/addMC',{
+            title:$("#title1").val(), desc:$("#desc1").val(), A:$("#A1").val(), B:$("#B1").val(), C:$("#C1").val(), D:$("#D1").val(), ans:$("#ans1").val(), tags:$("#tags1").val()
+         }, function(result){
+        console.log(result);
+        updateModel();
+          });
+        dialog.dialog( "close" );
+        
+      }
+      return valid;
+    }
+ 
+    dialog = $( "#addQuestion" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 400,
+      modal: true,
+      buttons: {
+        "Add a Question": addQuestion,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addQuestion();
+    });
+		
+	 });
+	</script>
+<script src="js/list.js"></script>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+<![endif]-->
+</head>
+
+<body>
+
+<h1>CSCI2720 Group Project</h1>
+
+<div>
+	<ul>
+		<li>YE Xiaotian</li>
+		<li>YE Boxiu</li>
+		<li>Feng Jingshan</li>
+	</ul>
+</div>
+
+<div id="authentication">
+	<button class="before" id="Button1">Sign in</button>
+	<button class="before" id="Button2">Sign up</button>
+	<button class="after" id="Button3">Sign out</button>
+</div>
+
+<div id="questioncontrol">
+	<button id="Button4">Show Questions</button>
+	<button id="Button5" class="after">Add Question</button>
+</div>
+
+
+<div id="addQuestion" title="Add a Question">
+  <p class="validateTips">All form fields are required.</p><br>
+ 
+  <form>
+    <fieldset>
+      <label for="title">Title</label><br>
+      <input type="text" name="title" id="title1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="desc">Description</label><br>
+      <input type="text" name="desc" id="desc1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="A">A</label><br>
+      <input type="text" name="A" id="A1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="B">B</label><br>
+      <input type="text" name="B" id="B1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="C">C</label><br>
+      <input type="text" name="C" id="C1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="D">D</label><br>
+      <input type="text" name="D" id="D1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="ans">Answer</label><br>
+      <input type="text" name="ans" id="ans1" class="text ui-widget-content ui-corner-all"><br>
+      <label for="tags">Tags</label><br>
+      <input type="text" name="tags" id="tags1" class="text ui-widget-content ui-corner-all"><br>
+ 
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+  </form>
+</div>
+
+<div id="RadioButtons1">
+	<input type="radio" name="RadioButtons1" id="Radio1" checked>
+	<label for="Radio1">Tags</label>
+	<input type="radio" name="RadioButtons1" id="Radio2">
+	<label for="Radio2">Username</label>
+	<input id="filter" placeholder="filter" autofocus />
+	<button id="Button7">search</button>
+</div>
+<nav>
+	<!-- Add class .pagination-lg for larger blocks or .pagination-sm for smaller blocks-->
+	<ul class="pagination" id="page_num_panel">
+		<li><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+		<li><a href="#">1</a></li>
+		<li><a href="#">2</a></li>
+		<li><a href="#">3</a></li>
+		<li><a href="#">4</a></li>
+		<li><a href="#">5</a></li>
+		<li><a href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+	</ul>
+</nav>
+<div class="list-group" id="listpanel">
+    <a href="#" class="list-group-item">
+	<h4 class="list-group-item-heading">Second List Group Item Heading</h4>
+	<p class="list-group-item-text">List Group Item Text</p>
+	</a></div>
+
+<div id="updateQuestion" title="Update a Question">
+  <p class="validateTips">All form fields are required.</p><br>
+ 
+  <form>
+    <fieldset>
+      <label for="title">Title</label><br>
+      <input type="text" name="title" id="title2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="desc">Description</label><br>
+      <input type="text" name="desc" id="desc2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="A">A</label><br>
+      <input type="text" name="A" id="A2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="B">B</label><br>
+      <input type="text" name="B" id="B2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="C">C</label><br>
+      <input type="text" name="C" id="C2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="D">D</label><br>
+      <input type="text" name="D" id="D2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="ans">Answer</label><br>
+      <input type="text" name="ans" id="ans2" class="text ui-widget-content ui-corner-all"><br>
+      <label for="tags">Tags</label><br>
+      <input type="text" name="tags" id="tags2" class="text ui-widget-content ui-corner-all"><br>
+ 
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+    </fieldset>
+  </form>
+</div>
+<div id="showDetail" title="Detail of the Question">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+    Your files have downloaded successfully into the My Downloads folder.
+  </p>
+  <p>
+    Currently using <b>36% of your storage space</b>.
+  </p>
+</div>
+<script type="text/javascript">
+$(function() {
+	$( "#Button1" ).button().click(function(){
+		location='/signin';
+	}); 
+});
+$(function() {
+	$( "#Button2" ).button().click(function(){
+		location='/signup';
+	}); 
+});
+$(function() {
+	$( "#Button3" ).button().click(function(){
+		location='/auth/signout';
+	}); ; 
+});
+$(function() {
+	$( "#Button4" ).button(); 
+});
+	
+$(function() {
+	$( "#Button5" ).button().click(function(){
+		$("#addQuestion").dialog("open");
+	}); 
+});
+
+$(function() {
+	$( "#RadioButtons1" ).buttonset(); 
+});
+$(function() {
+	$( "#Button7" ).button(); 
+});
+
+</script>
+</body>
+</html>
