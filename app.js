@@ -310,6 +310,7 @@ app.post('/auth/signup', function (req, res) {
 })
 
 app.post('/service/csv', function (req, res) {
+  
   var ids;
   if (req.body._id) {
     ids = req
@@ -321,48 +322,51 @@ app.post('/service/csv', function (req, res) {
     }
   else 
     ids = [];
-  
+
   var resArray = [];
   if (ids != []) {
     model
       .MC
       .find({
         _id: {
-          $any: ids
+          $in: ids
         }
       }, "title desc A B C D ans tags uid time", function (err, result) {
-        for (var index = 0; index < result.length; index++) {
+
+        function replceUsername(result, index, resArray) {
           model
             .User
             .find({
-              _id: uid
+              _id: result[index].uid
             }, 'username', function (err, username) {
-              resArray.push([
-                result[index].title,
-                result[index].desc,
-                result[index].A,
-                result[index].B,
-                result[index].C,
-                result[index].D,
-                result[index].ans,
-                result[index].tags,
-                username[0].username,
-                result[index].time
-              ]);
-
+              resArray[index].username = username[0].username;
             })
         }
+
+        for (var index = 0; index < result.length; index++) {
+          resArray.push({});
+          resArray[index].title = result[index].title;
+          resArray[index].desc = result[index].desc;
+          resArray[index].A = result[index].A;
+          resArray[index].B = result[index].B;
+          resArray[index].C = result[index].C;
+          resArray[index].D = result[index].D;
+          resArray[index].ans = result[index].ans;
+          resArray[index].tags = result[index].tags;
+          resArray[index].time = result[index].time;
+          replceUsername(result, index, resArray);
+        };
+
+        stringify(resArray, function (err, output) {
+          res.setHeader('Content-disposition', 'attachment; filename=MC.csv');
+          res.setHeader('Content-Type', 'text/csv');
+          res.send(output);
+        });
       })
   } else {
     res.send([]);
     return;
   }
-
-  stringify(input, function (err, output) {
-    res.setHeader('Content-disposition', 'attachment; filename=MC.csv');
-    res.setHeader('Content-Type', 'text/csv');
-    res.send(resArray);
-  });
 
 })
 

@@ -15,34 +15,83 @@ function QuestionList() {
   this.questions = []; // List of todo questions
 }
 function PageNum() {
-  this.selectedpage = 0;
+  this.selectedpage = 0; 
   this.pages = 0;
-}
-
+}    
+//set the selected page and the total page to be 0 initially
 $(document)
   .ready(function () {
     var myList = new QuestionList(); // The todo list model
-    var pagenum = new PageNum();
+    var pagenum = new PageNum();  //this contains the total page and the selected page
     updateView(); // Render the initial view
-
+    var searchmode=0; //this variable means whether there is a search mode
     $('#Button4').on('click', function (evt) {
-      updateModel();
+      updateModel(); //after updatemodel, the pagenum will change and then the updateview will affect
+      searchmode=0;
 
-      console.log(pagenum.pages);
+      console.log("this is the pagenum.pages: "+pagenum.pages);
       updateView();
+    });
+
+    $('#Button7').on('click', function (evt) {
+        searchmode=1;
+        search();
+        updateView();
+    
 
     });
 
-    function updateModel() {
-      myList.questions = [];
-      $.getJSON('/ajax/MC', function (result) {
-        $
-          .each(result, function (i, item) {
-            var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
-            myList
-              .questions
-              .push(question);
+    $('#Button10').on('click',function(evt){
+        download();
+      
+    });
 
+    function download(){
+      var x=$("input[name='box']");
+      var cnt=0;
+      var myarr=[];
+      var myval;
+      var tmp=0;
+      while(x[cnt]!=undefined){
+        if(x[cnt].checked==true){
+            console.log(x[cnt]);
+            console.log(myList.questions[cnt]._id);
+            myarr[tmp]=myList.questions[cnt]._id;
+          tmp++;
+          }
+          cnt++;
+        }
+        tmp=0;
+        while(myarr[tmp]!=undefined){
+          console.log("this is the "+tmp+" value in the myarr");
+          console.log(myarr[tmp]);
+          tmp++;
+        }
+        console.log("this is myarr");
+        console.log(myarr);
+        myval=myarr.join(",");
+        console.log("this is data for csv: "+myval);
+
+        $('#_id').val(myval);
+        $('#invisible_form').submit();
+            // $.post('/service/csv',{
+            //   _id:myval
+            // }, function(result){
+              
+            // //console.log(result);
+            // //updateModel();
+            //  });
+
+    }
+
+
+    function updateModel() {
+      myList.questions = []; //this is the obj previous created, the obj QuestionItem
+
+      $.getJSON('/ajax/MC', function (result) {
+        $.each(result, function (i, item) {
+            var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+            myList.questions.push(question);
           });
         pagenum.pages = Math.ceil(myList.questions.length / 10);
         updateView();
@@ -72,7 +121,8 @@ $(document)
 
         });
         // Remove the element at position pos (i.e., update the model)
-
+        if(searchmode==1)
+          search();
         updateView();
       }
     }
@@ -100,9 +150,9 @@ $(document)
       if (pos != -1) {
         pos = 10 * pagenum.selectedpage + pos;
         if (pos != myList.questions.length - 1) {
-          var temp = myList.questions[pos]
-          myList.questions[pos] = myList.questions[pos + 1]
-          myList.questions[pos + 1] = temp
+          var temp = myList.questions[pos];
+          myList.questions[pos] = myList.questions[pos + 1];
+          myList.questions[pos + 1] = temp;
         }
         updateView();
       }
@@ -204,28 +254,67 @@ $(document)
     function checkHandler(evt) {
       // Determine its position of the containing "li" element in the  "ul" list.
       var pos = $('#listpanel a').index($(this).parent());
+      console.log("this is the pos in the list: "+pos);
       if (pos != -1) {
-        myList.items[pos].checked = $(this).prop('checked');
-        updateView();
+        myList.questions[pos].checked = $(this).prop('checked');
+        // myList.items[pos].checked = $(this).prop('checked');
+
+        console.log(myList.questions[pos].checked);
+       // updateView();
       }
     }
+
     function selectPageHandler(evt) {
       var pos = $(this).text() - 1;
       pagenum.selectedpage = pos;
       updateView();
 
     }
+    function search(){
+        var a; // a=0 means tags while a=1 means name is checked
+        var searchvalue;
+         myList.questions = []; //this is the obj previous created, the obj QuestionItem
+        searchvalue=$("#filter").val();
+        console.log("this is the search value: "+searchvalue);
+        if($("#Radio1").is(':checked')){
+          console.log("this is check which is checked, for tags");
+          a=0;
+          //following copied from the function update
+        
+          $.getJSON('/ajax/MC', {tags:searchvalue}, function (result) {
+        $.each(result, function (i, item) {
+            var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+            myList.questions.push(question);
+          });
+        pagenum.pages = Math.ceil(myList.questions.length / 10);
+        updateView();
+        });
+
+        }
+        else {
+          console.log("this is check which is checked, for username");
+          a=1;
+           $.getJSON('/ajax/MC',{user:searchvalue}, function (result) {
+        $.each(result, function (i, item) {
+            var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+            myList.questions.push(question);
+          });
+        pagenum.pages = Math.ceil(myList.questions.length / 10);
+        updateView();
+       });
+        }
+    }
     function updateView() {
 
       var $pg = $('#page_num_panel');
       $pg.empty()
-      console.log(pagenum.pages);
+      console.log("this is the pagenum.pages: "+pagenum.pages);  
       for (var i = 0; i < pagenum.pages; i++) {
-        console.log(2);
+        console.log("this is just a constant to test something: "+2); //use this to show the page num button
         var $page = $('<li>');
         var $num = $('<a>');
         $num.prop('href', "#")
-        $num.text(i + 1);
+        $num.text(i + 1);  //this means i=0 and the page should show page 1
         $num.on('click', selectPageHandler);
         $page.append($num);
         $pg.append($page);
@@ -234,14 +323,18 @@ $(document)
       $ul.empty();
       var s = ((myList.questions.length < 10 * pagenum.selectedpage + 10)
         ? myList.questions.length
-        : 10 * pagenum.selectedpage + 10);
-      for (var i = 10 * pagenum.selectedpage; i < s; i++) {
+        : 10 * pagenum.selectedpage + 10);  //i means from the selected page to the last totally 10 questions
+      //s limited to the smaller of the total questions and the s plus 10
+      for (var i = 10 * pagenum.selectedpage; i < s; i++) {  
+        //these shows all of the selected questions using var i and s
         var item = myList.questions[i];
         var $listItem = $('<a>');
         $listItem.addClass("list-group-item");;
-        var $chkbox = $('<input type=checkbox>');
-        $chkbox.on('change', checkHandler);
-        $chkbox.prop('checked', item.checkeded);
+        var $chkbox = $('<input type="checkbox" name="box">');
+
+          //this is the checkbox initially
+        $chkbox.on('change', checkHandler); //item is the particular question in the database
+        $chkbox.prop('checked', item.checkeded);  //this is unusable
 
         var $title = $('<h4>').text(item.title);
         $title.addClass("list-group-item-heading");
@@ -277,6 +370,17 @@ $(document)
 
         $ul.append($listItem);
       }
+      //console.log(myList.questions[0]);
+      // if(searchmode==1){
+      //  var x=$("input[name='box']");
+      //  var cnt=0;
+      //  while(x[cnt]!=undefined){
+      //   x[cnt].checked=true;
+      //   myList.questions[cnt].checked=true;
+      //   cnt++;
+      //  }
+      //  //console.log($("input[name='box']"));
+      // }
     }
 
   });

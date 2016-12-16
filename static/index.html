@@ -15,6 +15,7 @@
 <script src="js/jquery.ui-1.10.4.button.min.js" type="text/javascript"></script>
 <script src="js/jquery.ui-1.10.4.dialog.min.js"></script>
 <script>
+
 		$(document).ready(function(){
 			$.get('/ajax/username', { myData: 0 }, function(result) {
     			console.log("username: "+result);
@@ -24,25 +25,26 @@
           $("#authentication").append("Welcome back, "+result+"!");
 				} 
         else{
-          $("#authentication").append("You haven't signed in. Please sign in to add questions.");
+
+          $("#authentication").append("You haven't signed in.");
         }
-			});
-	  var dialog, form;
-      function addQuestion() {
-      var valid = true;
-      if ( valid ) {
-	  	$.post('/ajax/addMC',{
-            title:$("#title1").val(), desc:$("#desc1").val(), A:$("#A1").val(), B:$("#B1").val(), C:$("#C1").val(), D:$("#D1").val(), ans:$("#ans1").val(), tags:$("#tags1").val()
-         }, function(result){
-        console.log(result);
-        updateModel();
-          });
-        dialog.dialog( "close" );
+			 });
+	     var dialog, form;
+        function addQuestion() {
+          var valid = true;
+           if ( valid ) {
+	  	    $.post('/ajax/addMC',{
+              title:$("#title1").val(), desc:$("#desc1").val(), A:$("#A1").val(), B:$("#B1").val(), C:$("#C1").val(), D:$("#D1").val(), ans:$("#ans1").val(), tags:$("#tags1").val()
+            }, function(result){
+            console.log(result);
+            updateModel();
+             });
+           dialog.dialog( "close" );
         
-      }
-      return valid;
-    }
- 
+          }
+          return valid;
+       }
+  
     dialog = $( "#addQuestion" ).dialog({
       autoOpen: false,
       height: 400,
@@ -64,6 +66,8 @@
       addQuestion();
     });
 		
+
+
 	 });
 	</script>
 <script src="js/list.js"></script>
@@ -75,11 +79,12 @@
 <![endif]-->
 </head>
 
-<body>
+<body style="margin-left:20px;margin-right:20px">
+<!-- <embed src="title.swf" quality=high wmode=transparent ></embed> -->
 
-<h1>CSCI2720 Group Project</h1>
+<h1 align="center" id="title">CSCI2720 Group Project</h1>
 
-<div>
+<div id="sid">
 	<ul>
 		<li>YE Xiaotian</li>
 		<li>YE Boxiu</li>
@@ -87,15 +92,16 @@
 	</ul>
 </div>
 
-<div id="authentication">
+<div id="authentication" style="margin-left:20px">
 	<button class="before" id="Button1">Sign in</button>
 	<button class="before" id="Button2">Sign up</button>
 	<button class="after" id="Button3">Sign out</button>
 </div>
 
-<div id="questioncontrol">
+<div id="questioncontrol" style="margin-left:20px;">
 	<button id="Button4">Show Questions</button>
 	<button id="Button5" class="after">Add Question</button>
+ 
 </div>
 
 
@@ -129,12 +135,13 @@
 
 <div id="RadioButtons1">
 	<input type="radio" name="RadioButtons1" id="Radio1" checked>
-	<label for="Radio1">Tags</label>
+	<label for="Radio1" style="margin-left:20px;margin-right:10px">Tags</label>
 	<input type="radio" name="RadioButtons1" id="Radio2">
-	<label for="Radio2">Username</label>
+	<label for="Radio2" style="margin-right:10px">Username</label>
 	<input id="filter" placeholder="filter" autofocus />
 	<button id="Button7">search</button>
 </div>
+ <button id="Button10"  style="margin-left:20px">Download Questions</button>
 <nav>
 	<!-- Add class .pagination-lg for larger blocks or .pagination-sm for smaller blocks-->
 	<ul class="pagination" id="page_num_panel">
@@ -189,38 +196,48 @@
     Currently using <b>36% of your storage space</b>.
   </p>
 </div>
+<!--for csv submitting-->
+<form id="invisible_form" action="/service/csv" method="post" target="_blank">
+  <input id="_id" name="_id" type="hidden" value="default">
+</form>
+
 <script type="text/javascript">
-$(function() {
+  $(function() {
 	$( "#Button1" ).button().click(function(){
 		location='/signin';
 	}); 
-});
-$(function() {
-	$( "#Button2" ).button().click(function(){
+  });
+  $(function() {
+	 $( "#Button2" ).button().click(function(){
 		location='/signup';
-	}); 
-});
-$(function() {
-	$( "#Button3" ).button().click(function(){
-		location='/auth/signout';
-	}); ; 
-});
-$(function() {
-	$( "#Button4" ).button(); 
-});
+	 }); 
+  });
+  $(function() {
+	 $( "#Button3" ).button().click(function(){
+		  location='/auth/signout';
+	 }); ; 
+  });
+  $(function() {
+	 $( "#Button4" ).button();     
+    //show questions
+  });
 	
-$(function() {
-	$( "#Button5" ).button().click(function(){
-		$("#addQuestion").dialog("open");
-	}); 
-});
+  $(function() {
+	 $( "#Button5" ).button().click(function(){
+		  $("#addQuestion").dialog("open");
+	 }); 
+  //add questions
+  });
 
-$(function() {
-	$( "#RadioButtons1" ).buttonset(); 
-});
-$(function() {
-	$( "#Button7" ).button(); 
-});
+  $(function() {
+	 $( "#RadioButtons1" ).buttonset(); 
+  });
+  $(function() {
+	 $( "#Button7" ).button(); 
+  });
+   $(function() {
+   $( "#Button10" ).button(); 
+  });
 
 </script>
 </body>
