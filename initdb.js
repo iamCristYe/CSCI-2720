@@ -30,25 +30,25 @@ function populateData() {
   var t = ['CUHK', 'CC', 'NA', 'UC'];
 
   var MCs = [
-    _MC('How many colleges are there in CUHK?', '(Numbers)', '6', '7', '8', '9', 'D', [
+    _MC('How many colleges are there in CUHK?', 'How many?', '6', '7', '8', '9', 'D', [
       t[0], t[1], t[2], t[3]
     ], 0, new Date(2016, 11, 10)),
-    _MC('When was CC founded?', '(Year)', '1950', '1951', '1952', '1953', 'B', [
+    _MC('When was CC founded?', 'When?', '1950', '1951', '1952', '1953', 'B', [
       t[0], t[1]
     ], 1, new Date(2016, 11, 10)),
-    _MC('When was NA founded?', '(Year)', '1947', '1948', '1949', '1950', 'C', [
+    _MC('When was NA founded?', 'When?', '1947', '1948', '1949', '1950', 'C', [
       t[0], t[2]
     ], 2, new Date(2016, 11, 10)),
-    _MC('When was UC founded?', '(Year)', '1956', '1957', '1958', '1959', 'A', [
+    _MC('When was UC founded?', 'When?', '1956', '1957', '1958', '1959', 'A', [
       t[0], t[3]
     ], 1, new Date(2016, 11, 10)),
-    _MC('How many hostels does CC have?', '(Numbers)', '7', '8', '9', '10', 'D', [
+    _MC('How many hostels does CC have?', 'How many?', '7', '8', '9', '10', 'D', [
       t[0], t[1]
     ], 2, new Date(2016, 11, 10)),
-    _MC('How many hostels does NA have?', '(Numbers)', '3', '4', '5', '6', 'B', [
+    _MC('How many hostels does NA have?', 'How many?', '3', '4', '5', '6', 'B', [
       t[0], t[2]
     ], 0, new Date(2016, 11, 10)),
-    _MC('How many hostels does UC have?', '(Numbers)', '4', '5', '6', '7', 'A', [
+    _MC('How many hostels does UC have?', 'How many?', '4', '5', '6', '7', 'A', [
       t[0], t[3]
     ], 0, new Date(2016, 11, 10))
   ];
