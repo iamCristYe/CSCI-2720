@@ -26,6 +26,10 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/static/index.html');
 })
 
+app.get('/md', function (req, res) {
+  res.sendFile(__dirname + '/static/index_md.html');
+})
+
 app.get('/signin', function (req, res) {
   res.sendFile(__dirname + '/static/signin.html');
 })

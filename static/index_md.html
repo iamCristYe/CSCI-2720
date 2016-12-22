@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sharing MC</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+        <script>
+            function QuestionItem(_id, title, desc, A, B, C, D, ans, tags, checked) {
+            this._id = _id;
+            this.title = title;
+            this.desc = desc;
+            this.A = A;
+            this.B = B;
+            this.C = C;
+            this.D = D;
+            this.ans = ans;
+            this.tags = tags;
+            this.checked = !!(checked);
+            }
+
+            function QuestionList() {
+            this.questions = []; // List of todo questions
+            }
+            function PageNum() {
+            this.selectedpage = 0;
+            this.pages = 0;
+            }
+
+            //set the selected page and the total page to be 0 initially
+            $(document)
+            .ready(function () {
+                var myList = new QuestionList(); // The todo list model
+                var pagenum = new PageNum(); //this contains the total page and the selected page
+                var searchmode = 0; //this variable means whether there is a search mode
+                updateModel(); //after updatemodel, the pagenum will change and then the updateview will affect
+                updateView();
+                
+                $('#search').on('change', function (evt) {
+                searchmode = 1;
+                search();
+                updateView();
+                });
+
+                //download CSV function
+                $('#download').on('click', function (evt) {
+                var x = $("input[type='checkbox']");
+                var cnt = 0;
+                var myarr = [];
+                var myval;
+                var tmp = 0;
+                while (x[cnt] != undefined) {
+                    if (x[cnt].checked == true) {
+                    //console.log(x[cnt]); console.log(myList.questions[cnt]._id);
+                    myarr[tmp] = myList.questions[cnt]._id;
+                    tmp++;
+                    }
+                    cnt++;
+                }
+                tmp = 0;
+                while (myarr[tmp] != undefined) {
+                    // console.log("this is the " + tmp + " value in the myarr");
+                    // console.log(myarr[tmp]);
+                    tmp++;
+                }
+                //console.log("this is myarr"); console.log(myarr);
+                myval = myarr.join(",");
+                //console.log("this is data for csv: " + myval);
+                $('#_id').val(myval);
+                $('#invisible_form').submit();
+                // $.post('/service/csv',{   _id:myval }, function(result){
+                // //console.log(result); //updateModel();  });
+                });
+
+                function updateModel() {
+                myList.questions = []; //this is the obj previous created, the obj QuestionItem
+
+                $.getJSON('/ajax/MC', function (result) {
+                    $.each(result, function (i, item) {
+                        var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+                        myList
+                        .questions
+                        .push(question);
+                    });
+                    pagenum.pages = Math.ceil(myList.questions.length / 10);
+                    updateView();
+                });
+                }
+
+                function updateHandler(evt) {
+                var parent = $(this).parent().parent(); // The "li" element containing the current button
+
+                var pos = $('#listpanel a').index(parent); // Determine its position in listpanel
+            //>>>?????????????>>>>>????????>>>>
+                var dialog,
+                    form;
+                function updateQuestion() {
+                    var valid = true;
+                    //this  part needs revisited after implemented update questio dialog
+                    if (valid) {
+                    $.post('/ajax/updateMC', {
+                        _id: myList.questions[pos]._id,
+                        title: $("#title").val(),
+                        desc: $("#desc").val(),
+                        A: $("#A").val(),
+                        B: $("#B").val(),
+                        C: $("#C").val(),
+                        D: $("#D").val(),
+                        ans: $("#ans").val(),
+                        tags: $("#tags").val()
+                        }, function (result) {
+                        //console.log(result);
+                        updateModel();
+                        });
+                        ///>>>>>>>>>>>>>>??????????????????????????>>>
+                    dialog.dialog("close");
+                    }
+                    return valid;
+                }
+                ///>>>>>>>>>>>>>>>>>>>???????????????
+                dialog = $("#updateQuestion").dialog({
+                    autoOpen: false,
+                    height: 400,
+                    width: 400,
+                    modal: true,
+                    buttons: {
+                    "Update a Question": updateQuestion,
+                    Cancel: function () {
+                        dialog.dialog("close");
+                    }
+                    },
+                    close: function () {
+                    form[0].reset();
+                    }
+                });
+                $("#updateQuestion").css("visibility", "visible");
+                form = dialog
+                    .find("form")
+                    .on("submit", function (event) {
+                    event.preventDefault();
+                    updateQuestion();
+                    });
+                dialog.dialog("open")
+                }
+
+
+            //????????????????tobedone
+                function showDetail(evt) {
+                var pos = $('#listpanel a').index($(this).parent());
+
+                var $id = $('<p>').text("ID:" + myList.questions[pos]._id);
+                var $title = $('<h4>').text(myList.questions[pos].title);
+                var $desc = $('<p>').text(myList.questions[pos].desc);
+                var $ul = $('<ul>');
+                var $A = $('<li>').append($('<span>').text("A: " + myList.questions[pos].A));
+                var $B = $('<li>').append($('<span>').text("B: " + myList.questions[pos].B));
+                var $C = $('<li>').append($('<span>').text("C: " + myList.questions[pos].C));
+                var $D = $('<li>').append($('<span>').text("D: " + myList.questions[pos].D));
+                $ul
+                    .append($A)
+                    .append($B)
+                    .append($C)
+                    .append($D);
+                console.log($ul);
+
+                var $ans = $('<p>').text("Answer: " + myList.questions[pos].ans);
+                var $tags = $('<p>').text("Tags: " + myList.questions[pos].tags);
+                var $dialogs = $('#showDetail')
+                $dialogs.empty();
+                $dialogs
+                    .append($id)
+                    .append($title)
+                    .append($desc)
+                    .append($ul)
+                    .append($ans)
+                    .append($tags);
+                console.log($($dialogs));
+                $("#showDetail").dialog({
+                    modal: true,
+                    buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                    }
+                });
+                $("#showDetail").css("visibility", "visible");
+                $("#showDetail").dialog("open");
+                }
+
+
+                function search() {
+                //var a; // a=0 means tags while a=1 means name is checked
+                var searchvalue;
+                myList.questions = []; //this is the obj previous created, the obj QuestionItem
+                searchvalue = $("#filter").val();
+                //console.log("this is the search value: " + searchvalue);
+                if ($("#Radio1").is(':checked')) { //这个等会再看
+                    //console.log("this is check which is checked, for tags");
+                    //a = 0;
+                    //following copied from the function update
+
+                    $.getJSON('/ajax/MC', {
+                    tags: searchvalue
+                    }, function (result) {
+                    $
+                        .each(result, function (i, item) {
+                        var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+                        myList
+                            .questions
+                            .push(question);
+                        });
+                    pagenum.pages = Math.ceil(myList.questions.length / 10);
+                    updateView();
+                    });
+
+                } else {
+                    //console.log("this is check which is checked, for username");
+                    //a = 1;
+                    $.getJSON('/ajax/MC', {
+                    user: searchvalue
+                    }, function (result) {
+                    $
+                        .each(result, function (i, item) {
+                        var question = new QuestionItem(item._id, item.title, item.desc, item.A, item.B, item.C, item.D, item.ans, item.tags);
+                        myList
+                            .questions
+                            .push(question);
+                        });
+                    pagenum.pages = Math.ceil(myList.questions.length / 10);
+                    updateView();
+                    });
+                }
+                }
+
+                function updateView() {
+                var $pg = $('#page_num_panel');
+                $pg.empty()
+                //console.log("this is the pagenum.pages: " + pagenum.pages);
+                for (var i = 0; i < pagenum.pages; i++) {
+                    //console.log("this is just a constant to test something: " + 2); //use this to show the page num button
+                    var $page = $('<li>');
+                    var $num = $('<a>');
+                    //$num.prop('href', "#")
+                    $num.text(i + 1); //this means i=0 and the page should show page 1
+                    $num.on('click', function(){
+                        var pos = $(this).text() - 1;
+                        pagenum.selectedpage = pos;
+                        updateView();
+                    });
+                    $page.append($num);
+                    $page.addClass("waves-effect");
+                    if (i==pagenum.selectedpage) {
+                    $page.addClass("active blue");
+                    }
+                    $pg.append($page);
+                }
+                var $ul = $('#listpanel');
+                $ul.empty();
+                var s = ((myList.questions.length < 10 * pagenum.selectedpage + 10)
+                    ? myList.questions.length
+                    : 10 * pagenum.selectedpage + 10); //i means from the selected page to the last totally 10 questions
+                //s limited to the smaller of the total questions and the s plus 10
+                for (var i = 10 * pagenum.selectedpage; i < s; i++) {
+                    //these shows all of the selected questions using var i and s
+                    var item = myList.questions[i];
+                    
+                    $ul.append(
+                                    '<li>'
+                                        +'<div class="collapsible-header white">'
+                                            +'<input type="checkbox" id="'+item._id+'">'
+                                            +'<label for="'+item._id+'" class="black-text">'+item.title+'</label>'
+                                            +'<span style="float:right">'
+                                                +'<i class="material-icons upbutton">arrow_upward</i>'
+                                                +'<i class="material-icons downbutton">arrow_downward</i>'
+                                                +'<i class="material-icons detailbutton">info_outline</i>'
+                                                +'<i class="material-icons updatebutton">mode_edit</i>'
+                                                +'<i class="material-icons deletebutton">delete</i>'
+                                            +'</span>'
+                                        +'</div>'
+                                    +'</li>'
+                    );
+                }
+
+                    $('.upbutton').on('click', function (evt) {
+                        var parent = $(this).parent().parent().parent(); // The "li" element containing the current button
+                        
+                        var pos = $('#listpanel li').index(parent); // Determine its position in listpanel
+                        
+                        if (pos != -1) {
+                        pos = 10 * pagenum.selectedpage + pos;
+                        if (pos != 0) {
+                            var temp = myList.questions[pos];
+                            myList.questions[pos] = myList.questions[pos - 1];
+                            myList.questions[pos - 1] = temp;
+                        }
+                        updateView();
+                        }
+                    });
+                
+                    $('.downbutton').on('click', function (evt) {
+                        var parent = $(this).parent().parent().parent(); // The "li" element containing the current button
+
+                        var pos = $('#listpanel li').index(parent); // Determine its position in listpanel
+
+                        if (pos != -1) {
+                        pos = 10 * pagenum.selectedpage + pos;
+                        if (pos != myList.questions.length - 1) {
+                            var temp = myList.questions[pos];
+                            myList.questions[pos] = myList.questions[pos + 1];
+                            myList.questions[pos + 1] = temp;
+                        }
+                        updateView();
+                        }
+                    });
+
+                    $('.detailbutton').on('click', function (evt) {
+                    showDetail();
+                    });
+
+                    $('.updatebutton').on('click', function (evt) {
+                    updateHandler();
+                    });
+
+                    $('.deletebutton').on('click', function (evt) {
+                        var parent = $(this).parent().parent().parent(); // The "li" element containing the current button
+
+                        var pos = $('#listpanel li').index(parent); // Determine its position in listpanel
+
+                        if (pos != -1) {
+                        pos = 10 * pagenum.selectedpage + pos;
+                        $.post('/ajax/deleteMC', {
+                            _id: myList.questions[pos]._id
+                        }, function (result) {
+                            updateModel();
+                            var newpages = Math.ceil(myList.questions.length / 10);
+                            if (newpages != pagenum.pages && newpages != 0 && pagenum.selectedpage == newpages) {
+                            pagenum.selectedpage = newpages - 1;
+                            }
+                            pagenum.pages = newpages;
+                        });
+                        // Remove the element at position pos (i.e., update the model)
+                        if (searchmode == 1) 
+                            search();
+                        updateView();
+                        }
+                    });
+                    
+                }
+
+            });       
+        </script>
+        <script>
+            $(document).ready(function () {
+                $.get('/ajax/username', { myData: 0 }, function (result) {
+                    if (result != "") { //Signed in
+                        $("#nav-sign-up-or-welcome-back").text("      Welcome back, " + result + "!      ");
+                        $("#nav-sign-in-or-sign-out").text("      Sign out      ");
+                        $('#nav-sign-in-or-sign-out').attr('href','/auth/signout');
+                    }
+                    else {  //Visitor
+                        $("#nav-sign-up-or-welcome-back").text("      Sign up      ");
+                        $("#nav-sign-in-or-sign-out").text("      Sign in      ");
+                        $('#nav-sign-up-or-welcome-back').attr('href','#signup');
+                        $('#nav-sign-in-or-sign-out').attr('href','#signin');
+                    }
+                });
+
+
+                var dialog, form;
+                function addQuestion() {
+                    var valid = true;
+                    if (valid) {
+                        $.post('/ajax/addMC', {
+                            title: $("#title1").val(), desc: $("#desc1").val(), A: $("#A1").val(), B: $("#B1").val(), C: $("#C1").val(), D: $("#D1").val(), ans: $("#ans1").val(), tags: $("#tags1").val()
+                        }, function (result) {
+                            console.log(result);
+                            updateModel();
+                        });
+                        dialog.dialog("close");
+            
+                    }
+                    return valid;
+                }
+            
+                dialog = $("#addQuestion").dialog({
+                    autoOpen: false,
+                    height: 400,
+                    width: 400,
+                    modal: true,
+                    buttons: {
+                        "Add a Question": addQuestion,
+                        Cancel: function () {
+                            dialog.dialog("close");
+                        }
+                    },
+                    close: function () {
+                        form[0].reset();
+                    }
+                });
+            
+                form = dialog.find("form").on("submit", function (event) {
+                    event.preventDefault();
+                    addQuestion();
+                });
+            
+            
+            
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('select').material_select();
+                $('.modal').modal();
+             });
+        </script>
+    </head>
+    <body class="grey lighten-3" style="margin:0;padding:0;">
+        <!--nav-->
+        <nav class="blue">
+            <div class="row">
+                <div class="col s10 offset-s1">
+                    <div class="nav-wrapper">
+                        <a class="brand-logo waves-effect waves-blue" href="/">&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;Sharing MC&#8239;™</a>
+                        <ul id="nav-mobile" class="right hide-on-med-and-down">
+                            <li>
+                                <a class="waves-effect waves-blue" id="nav-sign-up-or-welcome-back"></a>
+                            </li>
+                            <li>
+                                <a class="waves-effect waves-blue" id="nav-sign-in-or-sign-out"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!--main panel-->
+        <div class="row">
+            </br>
+
+            <!--search bar-->
+            <div class="col s4 offset-s2">
+            </div>
+            <form onsubmit="searchmode = 1;search();updateView();">
+                <div class="input-field col s1">
+                    <select>
+                        <option value="Tags" selected>&#8239;&#8239;Tags</option>
+                        <option value="Username">&#8239;&#8239;User</option>
+                    </select>
+                </div>
+                <div class="col s3" style="text-align: right">
+                    <nav>
+                        <div class="nav-wrapper white">
+                            <div class="input-field">
+                                <input id="search" type="search">
+                                <label for="search" class="active"><i class="material-icons" style="color:#444">search</i></label>
+                                <i class="material-icons" style="color:#444">close</i>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </form>
+            
+            <!--MC list-->           
+            <div class="col s8 offset-s2">
+                    <ul id="listpanel" class="collapsible" data-collapsible="expandable">
+                        
+                    </ul>
+            </div>
+            
+            
+            <div class="col s12" style="position:absolute;bottom:13vh">
+                </br>
+            <!--Download-->
+            <div class="col s2 offset-s2">
+                <a class="waves-effect waves-light btn blue" id="download" style="width: 100%">Download selcted</a>
+            </div>            
+            <!--pagination-->
+            <div class="col s4" style="text-align: center">            
+                <ul id="page_num_panel" class="pagination" style="margin-top: 2px">
+                </ul>
+            </div>
+            <!--about-->
+            <div class="col s2" style="text-align: right">
+                <a class="modal-trigger waves-effect waves-light btn blue" href="#about" style="width: 100%">About this app</a>
+            </div>
+
+            <!--about dialog-->
+            <div id="about" class="modal modal-fixed-footer">
+                <div class="modal-content">
+                    <h4>About This App</h4>
+                    <p>This app is the final project of CSCI 2510.</p>
+                    <p>Feng Jingshan 1155062054</p>
+                    <p>Ye Boxiu 1155046907</p>
+                    <p>Ye Xiaotian 1155062092</p>
+                </div>
+                <div class="modal-footer">
+                    <a class=" modal-action modal-close waves-effect waves-blue btn-flat">朕知道了</a>
+                </div>
+            </div>
+
+            <!--Sign in dialog-->
+            <div id="signin" class="modal">
+                <div class="modal-content">                    
+                    <div class="row">
+                        <form class="col s12" action="/auth/signin" method="post">
+                            <h4 class="col s6 offset-s3">Sign in</h4>
+                            <h6 class="col s6 offset-s3">Welcome back!</h6>                            
+                                <div class="input-field col s6 offset-s3">
+                                <input id="username" type="text" class="validate" name="username">
+                                <label for="username">Username</label>
+                                </div>  
+                                <div class="input-field col s6 offset-s3">
+                                <input id="password" type="password" class="validate" name="password">
+                                <label for="password">Password</label>
+                                </div>                            
+                            <input class="modal-action waves-effect waves-blue blue btn col s6 offset-s3" type="submit" value="Sign in"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!--Sign up dialog-->
+            <div id="signup" class="modal">
+                <div class="modal-content">                    
+                    <div class="row">
+                        <form class="col s12" action="/auth/signup" method="post">
+                            <h4 class="col s6 offset-s3">Sign up</h4>
+                            <h6 class="col s6 offset-s3">Become a professional MCer!</h6>                            
+                                <div class="input-field col s6 offset-s3">
+                                <input id="username" type="text" class="validate" name="username">
+                                <label for="username">Username</label>
+                                </div>  
+                                <div class="input-field col s6 offset-s3">
+                                <input id="password" type="password" class="validate" name="password">
+                                <label for="password">Password</label>
+                                </div>                            
+                            <input class="modal-action waves-effect waves-blue blue btn col s6 offset-s3" type="submit" value="Sign up"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!--add MC button-->
+            <div class="fixed-action-btn">
+                <a class="btn-floating btn-large red" href="#MCnew">
+                <i class="large material-icons">add</i>
+                </a>
+            </div>
+
+            <!--question detail dialog-->
+            <div id="MCdetail" class="modal">
+                <div class="modal-content">                    
+                    <div class="row">
+                        <form class="col s12" action="/auth/signup" method="post">
+                            <h4 class="col s6 offset-s3">Sign up</h4>
+                            <h6 class="col s6 offset-s3">Become a professional MCer!</h6>                            
+                                <div class="input-field col s6 offset-s3">
+                                <input id="username" type="text" class="validate" name="username">
+                                <label for="username">Username</label>
+                                </div>  
+                                <div class="input-field col s6 offset-s3">
+                                <input id="password" type="password" class="validate" name="password">
+                                <label for="password">Password</label>
+                                </div>                            
+                            <input class="modal-action waves-effect waves-blue blue btn col s6 offset-s3" type="submit" value="Sign up"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--question update dialog-->
+            <div id="MCupdate" class="modal">
+                <div class="modal-content">                    
+                    <div class="row">
+                        <form class="col s12" action="/auth/signup" method="post">
+                            <h4 class="col s6 offset-s3">Sign up</h4>
+                            <h6 class="col s6 offset-s3">Become a professional MCer!</h6>                            
+                                <div class="input-field col s6 offset-s3">
+                                <input id="username" type="text" class="validate" name="username">
+                                <label for="username">Username</label>
+                                </div>  
+                                <div class="input-field col s6 offset-s3">
+                                <input id="password" type="password" class="validate" name="password">
+                                <label for="password">Password</label>
+                                </div>                            
+                            <input class="modal-action waves-effect waves-blue blue btn col s6 offset-s3" type="submit" value="Sign up"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--question add dialog-->
+            <div id="MCnew" class="modal">
+                <div class="modal-content">                    
+                    <div class="row">
+                        <form class="col s12" action="/auth/signup" method="post">
+                            <h4 class="col s6 offset-s3">Sign up</h4>
+                            <h6 class="col s6 offset-s3">Become a professional MCer!</h6>                            
+                                <div class="input-field col s6 offset-s3">
+                                <input id="username" type="text" class="validate" name="username">
+                                <label for="username">Username</label>
+                                </div>  
+                                <div class="input-field col s6 offset-s3">
+                                <input id="password" type="password" class="validate" name="password">
+                                <label for="password">Password</label>
+                                </div>                            
+                            <input class="modal-action waves-effect waves-blue blue btn col s6 offset-s3" type="submit" value="Sign up"></input>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--hidden form for csv submitting-->
+            <form id="invisible_form" action="/service/csv" method="post" target="_blank">
+                <input id="_id" name="_id" type="hidden" value="default">
+            </form>
+        </div>
+    </body>
+</html>
