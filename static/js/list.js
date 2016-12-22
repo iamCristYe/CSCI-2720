@@ -216,10 +216,68 @@ $(document)
       var $title = $('<h4>').text(myList.questions[pos].title);
       var $desc = $('<p>').text(myList.questions[pos].desc);
       var $ul = $('<ul>');
-      var $A = $('<li>').append($('<span>').text("A: " + myList.questions[pos].A));
-      var $B = $('<li>').append($('<span>').text("B: " + myList.questions[pos].B));
-      var $C = $('<li>').append($('<span>').text("C: " + myList.questions[pos].C));
-      var $D = $('<li>').append($('<span>').text("D: " + myList.questions[pos].D));
+      var i=0;
+      var ava=0;
+      var arr=myList.questions[pos].A.split("");
+      
+      for(i=0;i<arr.length;i++){
+        if(arr[i]=="<"){
+          if(!((arr[i+1]=="b"&&(arr[i+2]==">"||(arr[i+2]=="r"&&arr[i+3]==">")))||(arr[i+1]=="i"&&arr[i+2]==">")||(arr[i+1]=="/"))){
+            var $A = $('<li>').append($('<span>').text("A: " + myList.questions[pos].A));
+            ava=1;
+          }    
+        }
+      }
+      if(ava==0){
+        var $A = $('<li>').append("A: " + myList.questions[pos].A);
+      }
+      ava=0;
+      arr=myList.questions[pos].B.split("")
+       for(i=0;i<arr.length;i++){
+        if(arr[i]=="<"){
+          if(!((arr[i+1]=="b"&&(arr[i+2]==">"||(arr[i+2]=="r"&&arr[i+3]==">")))||(arr[i+1]=="i"&&arr[i+2]==">")||(arr[i+1]=="/"))){
+            var $B = $('<li>').append($('<span>').text("B: " + myList.questions[pos].B));
+            ava=1;
+          }    
+        }
+      }
+      if(ava==0){
+        var $B = $('<li>').append("B: " + myList.questions[pos].B);
+      }
+      ava=0;
+      arr=myList.questions[pos].C.split("")
+      for(i=0;i<arr.length;i++){
+        if(arr[i]=="<"){
+          if(!((arr[i+1]=="b"&&(arr[i+2]==">"||(arr[i+2]=="r"&&arr[i+3]==">")))||(arr[i+1]=="i"&&arr[i+2]==">")||(arr[i+1]=="/"))){
+            var $C = $('<li>').append($('<span>').text("C: " + myList.questions[pos].C));
+            ava=1;
+          }    
+        }
+      }
+      if(ava==0){
+        var $C = $('<li>').append("C: " + myList.questions[pos].C);
+      }
+      ava=0;
+      arr=myList.questions[pos].D.split("")
+      for(i=0;i<arr.length;i++){
+        if(arr[i]=="<"){
+          if(!((arr[i+1]=="b"&&(arr[i+2]==">"||(arr[i+2]=="r"&&arr[i+3]==">")))||(arr[i+1]=="i"&&arr[i+2]==">")||(arr[i+1]=="/"))){
+            var $D = $('<li>').append($('<span>').text("D: " + myList.questions[pos].D));
+            ava=1;
+          }    
+        }
+      }
+      if(ava==0){
+        var $D = $('<li>').append("D: " + myList.questions[pos].D);
+      }
+
+      //var $A = $('<li>').append($('<span>').text("A: " + myList.questions[pos].A));
+      //var $A = $('<li>').append("A: " + myList.questions[pos].A);
+      //var $B = $('<li>').append($('<span>').text("B: " + myList.questions[pos].B));
+      //var $C = $('<li>').append($('<span>').text("C: " + myList.questions[pos].C));
+      //var $D = $('<li>').append($('<span>').text("D: " + myList.questions[pos].D));
+
+
       $ul
         .append($A)
         .append($B)
